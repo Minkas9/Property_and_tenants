@@ -1,10 +1,13 @@
 package com.example.TenantAndProperties.dto;
+
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -15,8 +18,8 @@ public class PropertyDTO {
     private String address;
 
     @Positive(message = "Price must be greater than zero")
-    private Double price;
+    private Double rentPrice;
 
     @NotNull(message = "Tenant ID is required.")
-    private Long tenantId;
+    private List<TenantDTO> tenants;
 }

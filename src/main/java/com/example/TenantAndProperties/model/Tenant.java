@@ -1,9 +1,11 @@
 package com.example.TenantAndProperties.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +16,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Tenant {
 
     @Id
@@ -24,9 +27,8 @@ public class Tenant {
 
     private String phone;
 
-    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<Property> property = new ArrayList<>();
-
-
+    @ManyToOne
+    @JsonBackReference
+    @JoinColumn(name = "property_id")
+    private Property property;
 }
