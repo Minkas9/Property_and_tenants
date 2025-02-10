@@ -30,7 +30,7 @@ public class PropertyController {
     public ResponseEntity<?> registerProperty(,@Valid @RequestBody PropertyDTO propertyDTO) {
         try {
             Property property = propertyMapper.toPropertyEntity(propertyDTO);
-            propertyService.addProperty(tenantId, property);
+            propertyService.addProperty(property);
             return ResponseEntity.status(HttpStatus.CREATED).body(propertyMapper.toPropertyDTO(property));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

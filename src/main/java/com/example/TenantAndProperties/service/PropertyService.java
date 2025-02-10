@@ -17,10 +17,14 @@ public class PropertyService {
     private final PropertyRepository propertyRepository;
     private final TenantRepository tenantRepository;
 
-    public void addProperty(Long tenantId, Property property) {
-        Tenant existingTenant = tenantRepository.findById(tenantId)
-                .orElseThrow(() -> new EntityNotFoundException("Tenant not found"));
-        property.setTenant(existingTenant);
+    public void addProperty(Property property) {
+        if (property.getTenants() != null && !property.getTenants().isEmpty()) {
+            for (Tenant tenant : property.getTenants()) {
+                Tenant existingTenant = tenantRepository.findById(tenant.getId())
+                        .orElseThrow(() -> new EntityNotFoundException("Tenant with ID " + tenant.getId() + " not found"));
+                tenant.setProperty(property);
+            }
+        }
         propertyRepository.save(property);
     }
 
@@ -30,15 +34,16 @@ public class PropertyService {
 
     public Property getPropertyById(Long id) {
         return propertyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Property with ID " + id + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException
+                        ("Property with ID " + id + " not found"));
     }
 
     public Property updateProperty(Long id, Property property) {
         return propertyRepository.findById(id)
                 .map(existingProperty -> {
                     existingProperty.setAddress(property.getAddress());
-                    existingProperty.setPrice(property.getPrice());
-                    existingProperty.setTenant(property.getTenant());
+                    existingProperty.setRentPrice(property.getRentPrice());
+                    existingProperty.setTenants(property.getTenants()); // Update tenant list
                     return propertyRepository.save(existingProperty);
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Property with ID " + id + " not found"));
@@ -48,7 +53,7 @@ public class PropertyService {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Property with ID " + id + " not found"));
 
-        if (property.getTenant() != null) {
+        if (!property.getTenants().isEmpty()) {
             throw new IllegalStateException("Property cannot be deleted because it has assigned tenants.");
         }
         propertyRepository.delete(property);

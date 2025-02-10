@@ -14,10 +14,7 @@ public class TenantService {
 
     private final TenantRepository tenantRepository;
 
-    public void addTenant(Long propertyId, Tenant tenant) {
-        if (tenant.getProperty() == null) {
-            throw new IllegalArgumentException("Tenant must be linked to a property.");
-        }
+    public void addTenant(Tenant tenant) {
         tenantRepository.save(tenant);
     }
 
@@ -27,7 +24,8 @@ public class TenantService {
 
     public Tenant getTenantById(Long id) {
         return tenantRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Tenant with ID " + id + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException
+                        ("Tenant with ID " + id + " not found"));
     }
 
     public Tenant updateTenant(Long id, Tenant tenant) {
@@ -38,10 +36,15 @@ public class TenantService {
                     existingTenant.setProperty(tenant.getProperty());
                     return tenantRepository.save(existingTenant);
                 })
-                .orElseThrow(() -> new EntityNotFoundException("Tenant with ID " + id + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException
+                        ("Tenant with ID " + id + " not found"));
     }
 
     public void deleteTenant(Long id) {
+        if (!tenantRepository.existsById(id)) {
+            throw new EntityNotFoundException
+                    ("Tenant with ID " + id + " not found");
+        }
         tenantRepository.deleteById(id);
     }
 }
