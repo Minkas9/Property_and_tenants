@@ -6,6 +6,7 @@ import com.example.TenantAndProperties.repository.PropertyRepository;
 import com.example.TenantAndProperties.repository.TenantRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,14 +19,24 @@ public class PropertyService {
     private final TenantRepository tenantRepository;
 
     public void addProperty(Property property) {
+
         if (property.getTenants() != null && !property.getTenants().isEmpty()) {
             for (Tenant tenant : property.getTenants()) {
                 Tenant existingTenant = tenantRepository.findById(tenant.getId())
                         .orElseThrow(() -> new EntityNotFoundException("Tenant with ID " + tenant.getId() + " not found"));
+
                 tenant.setProperty(property);
             }
         }
-        propertyRepository.save(property);
+
+        try {
+
+            propertyRepository.save(property);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException
+                    ("Property address must be unique. The address '"
+                            + property.getAddress() + "' is already taken.");
+        }
     }
 
     public List<Property> getAll() {
@@ -38,16 +49,25 @@ public class PropertyService {
                         ("Property with ID " + id + " not found"));
     }
 
-    public Property updateProperty(Long id, Property property) {
-        return propertyRepository.findById(id)
-                .map(existingProperty -> {
-                    existingProperty.setAddress(property.getAddress());
-                    existingProperty.setRentPrice(property.getRentPrice());
-                    existingProperty.setTenants(property.getTenants()); // Update tenant list
-                    return propertyRepository.save(existingProperty);
-                })
-                .orElseThrow(() -> new EntityNotFoundException("Property with ID " + id + " not found"));
+    public Property updateProperty(Long propertyId, Property propertyUpdate) {
+
+        Property existingProperty = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new EntityNotFoundException("Property with ID " + propertyId + " not found"));
+
+        existingProperty.setAddress(propertyUpdate.getAddress());
+        existingProperty.setRentPrice(propertyUpdate.getRentPrice());
+
+        if (propertyUpdate.getTenants() != null && !propertyUpdate.getTenants().isEmpty()) {
+            for (Tenant tenant : propertyUpdate.getTenants()) {
+                Tenant existingTenant = tenantRepository.findById(tenant.getId())
+                        .orElseThrow(() -> new EntityNotFoundException("Tenant with ID " + tenant.getId() + " not found"));
+                existingTenant.setProperty(existingProperty);
+            }
+        }
+
+        return propertyRepository.save(existingProperty);
     }
+
 
     public void deleteProperty(Long id) {
         Property property = propertyRepository.findById(id)

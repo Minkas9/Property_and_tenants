@@ -27,7 +27,7 @@ public class PropertyController {
 
     @PostMapping("/add")
     @Operation(summary = "Add property", description = "Adding and returning a property")
-    public ResponseEntity<?> registerProperty(,@Valid @RequestBody PropertyDTO propertyDTO) {
+    public ResponseEntity<?> registerProperty(@Valid @RequestBody PropertyDTO propertyDTO) {
         try {
             Property property = propertyMapper.toPropertyEntity(propertyDTO);
             propertyService.addProperty(property);
