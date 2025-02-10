@@ -14,7 +14,7 @@ public class TenantService {
 
     private final TenantRepository tenantRepository;
 
-    public void addTenant(Tenant tenant) {
+    public void addTenant(Long propertyId, Tenant tenant) {
         if (tenant.getProperty() == null) {
             throw new IllegalArgumentException("Tenant must be linked to a property.");
         }

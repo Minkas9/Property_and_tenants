@@ -1,5 +1,7 @@
 package com.example.TenantAndProperties.controller;
 
+import com.example.TenantAndProperties.dto.TenantDTO;
+import com.example.TenantAndProperties.mapper.TenantMapper;
 import com.example.TenantAndProperties.model.Tenant;
 import com.example.TenantAndProperties.service.TenantService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,43 +23,72 @@ import java.util.List;
 public class TenantController {
 
     private final TenantService tenantService;
+    private final TenantMapper tenantMapper;
 
-    public ResponseEntity<?> registerTenant(@Valid @RequestBody Tenant tenant) {
-        if (tenant.getProperty() == null || tenant.getProperty().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tenant must have at least one property.");
+    @PostMapping("/add/{propertyId}")  // ✅ Now requires propertyId
+    @Operation(summary = "Add tenant", description = "Adding and returning a tenant")
+    public ResponseEntity<?> registerTenant(@PathVariable Long propertyId, @Valid @RequestBody TenantDTO tenantDTO) {
+        try {
+            if (propertyId == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("A tenant must be linked to a property before being added.");
+            }
+
+            Tenant tenant = tenantMapper.toTenantEntity(tenantDTO);
+            tenantService.addTenant(propertyId, tenant);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(tenantMapper.toTenantDTO(tenant));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        tenantService.addTenant(tenant);
-        return ResponseEntity.status(HttpStatus.CREATED).body(tenant);
     }
+
 
     @GetMapping()
     @Operation(summary = "Get all tenants", description = "Returns a list of tenants")
-    public ResponseEntity<List<Tenant>> getAllTenants() {
-        log.info("Endpoint was hit");
-        return ResponseEntity.ok(tenantService.getAll());
+    public ResponseEntity<List<TenantDTO>> getAllTenants() {
+        log.info("fetching all tenants");
+        List<TenantDTO> tenants = tenantService.getAll()
+                .stream()
+                .map(tenantMapper::toTenantDTO)
+                .toList();
+        return ResponseEntity.ok(tenants);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get tenant by id", description = "Returns a specific tenant")
-    public ResponseEntity<Tenant> getTenantById(@PathVariable Long id) {
-        return ResponseEntity.ok(tenantService.getTenantById(id));
+    public ResponseEntity<?> getTenantById(@PathVariable Long id) {
+        try {
+            Tenant tenant = tenantService.getTenantById(id);
+            return ResponseEntity.ok(tenantMapper.toTenantDTO(tenant));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Tenant with id " + id + " not found.");
+        }
     }
 
     @PutMapping("/update/{id}")
     @Operation(summary = "Update tenant by id", description = "Update and return a tenant")
-    public ResponseEntity<Tenant> updateTenant(@PathVariable Long id, @Valid @RequestBody Tenant tenant) {
-        return ResponseEntity.ok(tenantService.updateTenant(id, tenant));
+    public ResponseEntity<?> updateTenant(@PathVariable Long id, @Valid @RequestBody TenantDTO tenantDTO) {
+        try {
+            Tenant updatedTenant = tenantService.updateTenant(id, tenantMapper.toTenantEntity(tenantDTO));
+            return ResponseEntity.ok(tenantMapper.toTenantDTO(updatedTenant));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Tenant with id " + id + " not found.");
+        }
     }
 
     @DeleteMapping("/delete/{id}")
     @Operation(summary = "Delete tenant by id ", description = "Returns a message of action")
     public ResponseEntity<?> deleteTenant(@PathVariable Long id) {
-        if (tenantService.getTenantById(id) == null) {
+        try {
+            tenantService.deleteTenant(id);
+            return ResponseEntity.ok("Tenant was deleted");
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Tenant with id " + id + " not found.");
         }
-        tenantService.deleteTenant(id);
-        return ResponseEntity.ok("Tenant was deleted");
-    }
 
+    }
 }
