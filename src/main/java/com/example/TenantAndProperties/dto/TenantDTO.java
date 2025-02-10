@@ -15,6 +15,5 @@ public class TenantDTO {
 
     @NotEmpty(message = "Tenant phone is required.")
     private String phone;
-
     private PropertyDTO property;
 }

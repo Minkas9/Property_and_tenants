@@ -44,7 +44,6 @@ public class TenantController {
         }
     }
 
-
     @GetMapping()
     @Operation(summary = "Get all tenants", description = "Returns a list of tenants")
     public ResponseEntity<List<TenantDTO>> getAllTenants() {
@@ -90,6 +89,5 @@ public class TenantController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Tenant with id " + id + " not found.");
         }
-
     }
 }

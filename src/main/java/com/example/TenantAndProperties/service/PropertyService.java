@@ -52,7 +52,8 @@ public class PropertyService {
     public Property updateProperty(Long propertyId, Property propertyUpdate) {
 
         Property existingProperty = propertyRepository.findById(propertyId)
-                .orElseThrow(() -> new EntityNotFoundException("Property with ID " + propertyId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException
+                        ("Property with ID " + propertyId + " not found"));
 
         existingProperty.setAddress(propertyUpdate.getAddress());
         existingProperty.setRentPrice(propertyUpdate.getRentPrice());
@@ -60,7 +61,8 @@ public class PropertyService {
         if (propertyUpdate.getTenants() != null && !propertyUpdate.getTenants().isEmpty()) {
             for (Tenant tenant : propertyUpdate.getTenants()) {
                 Tenant existingTenant = tenantRepository.findById(tenant.getId())
-                        .orElseThrow(() -> new EntityNotFoundException("Tenant with ID " + tenant.getId() + " not found"));
+                        .orElseThrow(() -> new EntityNotFoundException
+                                ("Tenant with ID " + tenant.getId() + " not found"));
                 existingTenant.setProperty(existingProperty);
             }
         }
@@ -68,13 +70,14 @@ public class PropertyService {
         return propertyRepository.save(existingProperty);
     }
 
-
     public void deleteProperty(Long id) {
         Property property = propertyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Property with ID " + id + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException
+                        ("Property with ID " + id + " not found"));
 
         if (!property.getTenants().isEmpty()) {
-            throw new IllegalStateException("Property cannot be deleted because it has assigned tenants.");
+            throw new IllegalStateException
+                    ("Property cannot be deleted because it has assigned tenants.");
         }
         propertyRepository.delete(property);
     }
