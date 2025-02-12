@@ -6,6 +6,7 @@ import com.example.TenantAndProperties.model.Property;
 import com.example.TenantAndProperties.service.PropertyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,9 +51,14 @@ public class PropertyController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get property by id", description = "Returns a specific property")
-    public ResponseEntity<PropertyDTO> getPropertyById(@PathVariable Long id) {
-        Property property = propertyService.getPropertyById(id);
-        return ResponseEntity.ok(propertyMapper.toPropertyDTO(property));
+    public ResponseEntity<?> getPropertyById(@PathVariable Long id) {
+        try {
+            Property property = propertyService.getPropertyById(id);
+            return ResponseEntity.ok(propertyMapper.toPropertyDTO(property));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Property with id " + id + " not found.");
+        }
     }
 
     @PutMapping("/update/{id}")

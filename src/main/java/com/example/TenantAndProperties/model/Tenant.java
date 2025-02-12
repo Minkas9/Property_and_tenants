@@ -23,6 +23,7 @@ public class Tenant {
     @NotBlank(message = "Name cant be empty")
     private String name;
 
+    @NotBlank(message = "Name cant be empty")
     private String phone;
 
     @ManyToOne

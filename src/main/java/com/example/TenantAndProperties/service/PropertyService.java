@@ -23,14 +23,14 @@ public class PropertyService {
         if (property.getTenants() != null && !property.getTenants().isEmpty()) {
             for (Tenant tenant : property.getTenants()) {
                 Tenant existingTenant = tenantRepository.findById(tenant.getId())
-                        .orElseThrow(() -> new EntityNotFoundException("Tenant with ID " + tenant.getId() + " not found"));
+                        .orElseThrow(() -> new EntityNotFoundException
+                                ("Tenant with ID " + tenant.getId() + " not found"));
 
                 tenant.setProperty(property);
             }
         }
 
         try {
-
             propertyRepository.save(property);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException

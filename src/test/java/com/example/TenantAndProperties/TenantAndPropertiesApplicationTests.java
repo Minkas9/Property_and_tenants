@@ -1,4 +1,4 @@
-package com.example.Tenant.and.Properties;
+package com.example.TenantAndProperties;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
