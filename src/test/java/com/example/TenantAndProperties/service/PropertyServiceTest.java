@@ -1,11 +1,8 @@
 package com.example.TenantAndProperties.service;
 
-import com.example.TenantAndProperties.mapper.PropertyMapper;
-import com.example.TenantAndProperties.mapper.TenantMapper;
 import com.example.TenantAndProperties.model.Property;
 import com.example.TenantAndProperties.model.Tenant;
 import com.example.TenantAndProperties.repository.PropertyRepository;
-import com.example.TenantAndProperties.repository.TenantRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,23 +16,11 @@ import java.util.Optional;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class PropertyServiceTest {
 
     @Mock
     private PropertyRepository propertyRepository;
-
-    @Mock
-    private TenantRepository tenantRepository;
-
-    @Mock
-    private PropertyMapper propertyMapper;
-
-    @Mock
-    private TenantMapper tenantMapper;
 
     @InjectMocks
     private PropertyService propertyService;
@@ -51,27 +36,22 @@ class PropertyServiceTest {
 
     @Test
     void testIfAddPropertyAddsProperty() {
-
         when(propertyRepository.save(any(Property.class))).thenReturn(property);
 
         propertyService.addProperty(property);
 
         verify(propertyRepository, times(1)).save(property);
-
         assertNotNull(property);
         assertTrue(property.getTenants().isEmpty(), "Property should have no tenants");
-
     }
 
     @Test
     void testIfGetAllPropertyReturnsAllProperty() {
-
         when(propertyRepository.findAll()).thenReturn(List.of(property));
 
         List<Property> properties = propertyService.getAll();
 
         verify(propertyRepository, times(1)).findAll();
-
         assertNotNull(properties);
         assertEquals(1, properties.size());
         assertEquals(property.getAddress(), properties.get(0).getAddress());
@@ -79,12 +59,11 @@ class PropertyServiceTest {
 
     @Test
     void testIfGetPropertyByIdReturnsPropertyIfFound() {
-        when(propertyRepository.findById(1L)).thenReturn(java.util.Optional.of(property));
+        when(propertyRepository.findById(1L)).thenReturn(Optional.of(property));
 
         Property foundProperty = propertyService.getPropertyById(1L);
 
         verify(propertyRepository, times(1)).findById(1L);
-
         assertNotNull(foundProperty);
         assertEquals(property.getAddress(), foundProperty.getAddress());
         assertEquals(property.getRentPrice(), foundProperty.getRentPrice());
@@ -93,12 +72,12 @@ class PropertyServiceTest {
     @Test
     void testIfPropertyIsUpdatedWhenExists() {
 
-        Property updatedProperty = property;
+        Property updatedProperty = new Property();
+        updatedProperty.setId(property.getId());
         updatedProperty.setAddress("Vilniaus g. 12, Vilnius");
         updatedProperty.setRentPrice(1200.00);
 
         when(propertyRepository.findById(1L)).thenReturn(Optional.of(property));
-
         when(propertyRepository.save(any(Property.class))).thenReturn(updatedProperty);
 
         Property updated = propertyService.updateProperty(1L, updatedProperty);
@@ -112,12 +91,27 @@ class PropertyServiceTest {
 
     @Test
     void testIfDeletesPropertyWhenNoTenants() {
-
-        when(propertyRepository.findById(1L)).thenReturn(java.util.Optional.of(property));
+        when(propertyRepository.findById(1L)).thenReturn(Optional.of(property));
 
         propertyService.deleteProperty(1L);
 
         verify(propertyRepository, times(1)).delete(property);
     }
 
+    @Test
+    void testIfDeletePropertyFailsWhenTenantsExist() {
+
+        property.getTenants().add(tenant);
+
+        when(propertyRepository.findById(1L)).thenReturn(Optional.of(property));
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            propertyService.deleteProperty(1L);
+        });
+
+        assertTrue(exception.getMessage().contains
+                ("Property cannot be deleted because it has assigned tenants."));
+
+        verify(propertyRepository, never()).delete(any(Property.class));
+    }
 }

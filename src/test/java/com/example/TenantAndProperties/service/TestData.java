@@ -5,6 +5,7 @@ import com.example.TenantAndProperties.dto.TenantDTO;
 import com.example.TenantAndProperties.model.Property;
 import com.example.TenantAndProperties.model.Tenant;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TestData {
@@ -15,7 +16,7 @@ public class TestData {
                 .id(1L)
                 .address("Kauno g. 11, Kaunas")
                 .rentPrice(999.00)
-                .tenants(List.of())
+                .tenants(new ArrayList<>())
                 .build();
     }
 

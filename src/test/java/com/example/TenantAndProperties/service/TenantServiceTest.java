@@ -2,12 +2,12 @@ package com.example.TenantAndProperties.service;
 
 import com.example.TenantAndProperties.model.Tenant;
 import com.example.TenantAndProperties.repository.TenantRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.*;
@@ -70,7 +70,7 @@ public class TenantServiceTest {
     }
 
     @Test
-    void testIfDeletesTenantWhenNoTenants() {
+    void testIfDeletesTenantWhenExists() {
 
         when(tenantRepository.existsById(1L)).thenReturn(true);
 
@@ -79,4 +79,17 @@ public class TenantServiceTest {
         verify(tenantRepository, times(1)).deleteById(1L);
     }
 
+    @Test
+    void testIfDeleteTenantFailsWhenTenantDoesNotExist() {
+
+        when(tenantRepository.existsById(1L)).thenReturn(false);
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            tenantService.deleteTenant(1L);
+        });
+
+        assertTrue(exception.getMessage().contains("Tenant with ID 1 not found"));
+
+        verify(tenantRepository, never()).deleteById(anyLong());
+    }
 }
