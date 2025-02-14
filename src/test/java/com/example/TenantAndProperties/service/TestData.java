@@ -14,7 +14,7 @@ public class TestData {
 
         return Property.builder()
                 .id(1L)
-                .address("Kauno g. 11, Kaunas")
+                .address("Kauno g. 11A, Kaunas")
                 .rentPrice(999.00)
                 .tenants(new ArrayList<>())
                 .build();
@@ -24,7 +24,7 @@ public class TestData {
         return Tenant.builder()
                 .id(1L)
                 .name("Arvydas Sabonis")
-                .phone("065478991")
+                .phone("065478992")
                 .build();
     }
 
@@ -34,7 +34,7 @@ public class TestData {
         tenantDTO.setPhone("065478991");
 
         PropertyDTO propertyDTO = new PropertyDTO();
-        propertyDTO.setAddress("Kauno g. 11, Kaunas");
+        propertyDTO.setAddress("Kauno g. 11A, Kaunas");
         propertyDTO.setRentPrice(999.00);
         propertyDTO.setTenants(List.of(tenantDTO));
 

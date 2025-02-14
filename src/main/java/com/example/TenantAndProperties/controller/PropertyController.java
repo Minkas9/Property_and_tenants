@@ -41,12 +41,17 @@ public class PropertyController {
     @GetMapping()
     @Operation(summary = "Get all properties", description = "Returns a list of properties")
     public ResponseEntity<List<PropertyDTO>> getAllProperties() {
-        log.info("Fetching all properties");
-        List<PropertyDTO> properties = propertyService.getAll()
-                .stream()
+        log.info("Fetching all properties...");
+
+        List<Property> properties = propertyService.getAll();
+        log.info("Service returned: {}", properties);
+
+        List<PropertyDTO> propertyDTOs = properties.stream()
                 .map(propertyMapper::toPropertyDTO)
                 .toList();
-        return ResponseEntity.ok(properties);
+
+        log.info("Returning DTOs: {}", propertyDTOs);
+        return ResponseEntity.ok(propertyDTOs);
     }
 
     @GetMapping("/{id}")

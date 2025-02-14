@@ -74,7 +74,7 @@ class PropertyServiceTest {
 
         Property updatedProperty = new Property();
         updatedProperty.setId(property.getId());
-        updatedProperty.setAddress("Vilniaus g. 12, Vilnius");
+        updatedProperty.setAddress("Vilniaus g. 11, Vilnius");
         updatedProperty.setRentPrice(1200.00);
 
         when(propertyRepository.findById(1L)).thenReturn(Optional.of(property));
@@ -83,7 +83,7 @@ class PropertyServiceTest {
         Property updated = propertyService.updateProperty(1L, updatedProperty);
 
         assertNotNull(updated);
-        assertEquals("Vilniaus g. 12, Vilnius", updated.getAddress());
+        assertEquals("Vilniaus g. 11, Vilnius", updated.getAddress());
         assertEquals(1200.00, updated.getRentPrice());
 
         verify(propertyRepository, times(1)).save(updatedProperty);

@@ -55,7 +55,7 @@ public class TenantServiceTest {
 
         Tenant updatedTenant = TestData.createTestTenant();
         updatedTenant.setName("Jonas Valančiūnas");
-        updatedTenant.setPhone("065478992");
+        updatedTenant.setPhone("065478994");
 
         when(tenantRepository.findById(1L)).thenReturn(java.util.Optional.of(tenant));
         when(tenantRepository.save(any(Tenant.class))).thenReturn(updatedTenant);
@@ -64,7 +64,7 @@ public class TenantServiceTest {
 
         assertNotNull(updated);
         assertEquals("Jonas Valančiūnas", updated.getName());
-        assertEquals("065478992", updated.getPhone());
+        assertEquals("065478994", updated.getPhone());
 
         verify(tenantRepository, times(1)).save(updatedTenant);
     }
